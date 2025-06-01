@@ -1,0 +1,167 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #333 /* Light background color */
+}
+
+/* Header */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #4B0082;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    margin: 0;
+}
+
+.navContainer {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 3rem;
+    display: flex;
+    justify-content: space-between; /* Space between logo/nav and subscribe button */
+    align-items: center; /* Align items vertically in the center */
+    gap: 2rem;
+}
+
+.logoAndNavBar {
+    display: flex;
+    align-items: center; /* Center logo and nav items vertically */
+    gap: 2rem; /* Space between logo and nav */
+}
+
+.logoText h1 {
+    color: black;
+    font-size: 2rem;
+    margin: 0; /* Remove default margin */
+    padding: 0;
+}
+
+h1, h2, p {
+    margin: 0; /* Remove margins to avoid unwanted space */
+    padding: 0; /* Remove padding if necessary */
+}
+
+/* Navigation Styles */
+.navBar nav ul {
+    list-style: none;
+    display: flex; /* Display nav items in a row */
+    gap: 2rem; /* Space between nav items */
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+}
+
+.navBar nav ul li a {
+    color: black;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: 0.5s;
+    padding: 0.5rem;
+}
+
+.navBar nav ul li a:hover {
+    color: #FFD700;
+    border-bottom: 2px solid;
+}
+
+/* Login Button Styles */
+.login-btn {
+    padding: 0.5rem 1.5rem; /* Add padding to the button */
+    background-color: #333; /* Set background color */
+    color: #663399; /* Text color */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Change cursor on hover */
+    transition: background-color 0.3s; /* Smooth transition */
+    min-width: 250px;
+}
+
+.login-btn:hover {
+    background-color: #FFD700; /* Darken on hover */
+}
+
+/* Main Content Styles */
+.mainContainer {
+    max-width: 100%;
+    margin: 0 auto; /* Center the content with margin */
+    padding: 2rem; /* Padding for the main content */
+    background: linear-gradient(to bottom, #4B0082, #001F3F); /* White background for content area */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Specific Styles for Index Page */
+.indexContainer {
+    padding-top: 1rem;
+    text-align: center; /* Center text for index page */
+}
+
+/* Specific Styles for Auction Items */
+.auction-item {
+    background-color: #333; /* Light background for auction items */
+    border: 1px solid; /* Light border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 1rem; /* Padding inside auction items */
+    margin: 1rem 0; /* Space between auction items */
+}
+
+.auction-header {
+    font-weight: bold; /* Bold header for auction items */
+    font-size: 1.5rem; /* Larger font size for headers */
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem 0; /* Using rem for padding */
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .navContainer {
+        padding: 0 1rem; /* Reduce padding on smaller screens */
+        flex-direction: column; /* Stack items vertically on smaller screens */
+        align-items: flex-start; /* Align items to the start */
+    }
+
+    .navBar nav ul {
+        flex-direction: column; /* Stack nav items vertically */
+        width: 100%; /* Full width for mobile view */
+    }
+
+    .navBar nav ul li {
+        margin-bottom: 1rem; /* Space below each item */
+    }
+
+    .mainContainer {
+        width: 90%; /* Slightly wider container on mobile */
+        padding: 1.5rem; /* Adjust padding for mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    .logoText h1 {
+        font-size: 1.5rem; /* Smaller brand font size on very small screens */
+    }
+
+    .navBar nav ul li a {
+        font-size: 1rem; /* Smaller font size for nav links */
+    }
+
+    .login-btn {
+        font-size: 0.9rem; /* Smaller button font size */
+        padding: 0.5rem 1rem; /* Adjust padding */
+    }
+
+    .auction-header {
+        font-size: 1.2rem; /* Smaller font size for auction headers */
+    }
+}
