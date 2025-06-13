@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Auctions - Auction List{% endblock %}
+
+{% block content %}
+<div class="auction-container">
+    {% include 'partials/auction_header.html' with {
+        title: 'Live Auctions',
+        show_create_btn: true
+    } %}
+
+    {% include 'partials/auction_filters.html' %}
+
+    <div class="auction-list">
+        {% if auctions %}
+            {% for auction in auctions %}
+                {% include 'partials/auction_card.html' %}
+            {% endfor %}
+        {% else %}
+            <div class="no-auctions">
+                <p>No auctions found. {% if current_user.is_authenticated %}Why not <a href="{{ url_for('auction_router.create_auction') }}">create one</a>?{% endif %}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}

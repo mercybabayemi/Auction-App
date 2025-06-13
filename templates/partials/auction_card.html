@@ -1,0 +1,32 @@
+<!-- templates/partials/auction_card.html -->
+<div class="auction-item">
+    <div class="auction-image">
+        {% if auction.image_filenames %}
+        <img src="{{ url_for('static', filename='uploads/auction_images/' + auction.image_filenames[0]) }}"
+             alt="{{ auction.item_title }}">
+        {% else %}
+        <div class="no-image">No Image Available</div>
+        {% endif %}
+    </div>
+
+    <div class="auction-details">
+        <h3><a href="{{ url_for('auction_router.auction_detail', auction_id=auction.id) }}">{{ auction.item_title }}</a></h3>
+        <p class="seller">Seller: {{ auction.seller.username }}</p>
+        <p class="description">{{ auction.item_description|truncate(150) }}</p>
+
+        <div class="auction-meta">
+            <div class="bid-info">
+                <span class="label">Current Bid:</span>
+                <span class="price">${{ auction.current_bid or auction.starting_bid }}</span>
+            </div>
+            <div class="time-info">
+                <span class="label">Ends:</span>
+                <span class="time">{{ auction.end_time }}</span>
+            </div>
+        </div>
+
+        <a href="{{ url_for('auction_router.auction_detail', auction_id=auction.id) }}" class="btn btn-bid">
+            View Auction
+        </a>
+    </div>
+</div>

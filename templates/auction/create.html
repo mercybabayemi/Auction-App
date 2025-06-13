@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Create Auction{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="mb-4 text-center">Create New Auction</h2>
+
+            <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {{ form.hidden_tag() }}
+
+                <!-- Item Details Card -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Item Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="item_title" class="form-label">Item Title*</label>
+                            <input type="text" class="form-control" id="item_title" name="item_title"
+                                   required minlength="5" maxlength="100">
+                            <div class="invalid-feedback">
+                                Please provide a title (5-100 characters).
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="item_description" class="form-label">Description*</label>
+                            <textarea class="form-control" id="item_description" name="item_description"
+                                      rows="4" required minlength="20" maxlength="1000"></textarea>
+                            <div class="invalid-feedback">
+                                Please provide a detailed description (20-1000 characters).
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="item_condition" class="form-label">Condition*</label>
+                                <select class="form-select" id="item_condition" name="item_condition" required>
+                                    <option value="" selected disabled>Select condition</option>
+                                    <option value="New">New</option>
+                                    <option value="Like New">Like New</option>
+                                    <option value="Used">Used</option>
+                                    <option value="Refurbished">Refurbished</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select the item condition.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="Other" selected>Other</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Fashion">Fashion</option>
+                                    <option value="Home">Home</option>
+                                    <option value="Collectibles">Collectibles</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auction Details Card -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Auction Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="starting_bid" class="form-label">Starting Price ($)*</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="starting_bid"
+                                           name="starting_bid" step="0.01" min="0.01" required>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please enter a valid starting price (minimum $0.01).
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="end_time" class="form-label">End Date & Time*</label>
+                                <input type="datetime-local" class="form-control" id="end_time"
+                                       name="end_time" required>
+                                <div class="invalid-feedback">
+                                    Please select an end date in the future.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Images Card -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Item Images</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="images" class="form-label">Upload Images (Max 5)*</label>
+                            <input class="form-control" type="file" id="images" name="images"
+                                   multiple accept="image/*" required>
+                            <div class="form-text">First image will be used as the main display image.</div>
+                            <div class="invalid-feedback">
+                                Please upload at least one image (JPEG, PNG).
+                            </div>
+                        </div>
+
+                        <div class="image-preview-container d-flex flex-wrap gap-2 mt-3">
+                            <!-- Preview will be inserted here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Create Auction</button>
+                    <a href="{{ url_for('auction_router.list_auctions') }}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

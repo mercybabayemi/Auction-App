@@ -16,25 +16,48 @@
                 <div class="logoText">
                     <h1 class="logo">Auction App</h1>
                 </div>
-                <div class="navBar">
-                    <nav>
-                        <ul>
-                            <li><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
-                            <li><a class="nav-link" href="{{ url_for('auction') }}">Auctions</a></li>
-                            <li><a class="nav-link" href="#">About</a></li>
-                            <li><a class="nav-link" href="#">Contact</a></li>
-                        </ul>
-                    </nav>
+                <div class="nav-center-container">
+                    <div class="navBar">
+                        <nav>
+                            <ul>
+                                <li><a class="nav-link" href="{{ url_for('user_router.index') }}">Home</a></li>
+                                <li><a class="nav-link" href="{{ url_for('user_router.auction') }}">Auctions</a></li>
+                                <li><a class="nav-link" href="{{ url_for('user_router.about') }}">About</a></li>
+                                <li><a class="nav-link" href="{{ url_for('user_router.contact') }}">Contact</a></li>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
-            </div>
-            <div class="login">
-                <button class="login-btn">Login</button>
+                <div class="login-logout">
+                        {{ current_user.is_authenticated }}
+                    {% if current_user.is_authenticated %}
+                        <a class="call-to-action-btn" href="{{ url_for('auth_router.logout') }}">Logout</a>
+                    {% else %}
+                        <a class="call-to-action-btn" href="{{ url_for('auth_router.login') }}">Login</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </header>
 
+    <!-- Flash Messages in fixed position-->
+        <div id="flash-container" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message alert-{{ category }}"
+                            style="padding: 15px; margin-bottom: 15px; border-radius: 4px; min-width: 300px; position: relative; background-color: #dddddd">
+                            {{ message }}
+                            <span class="close-flash" style="position: absolute; top: 5px; right: 10px; cursor: pointer; font-size: 1.5em;">&times;</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
     <!-- Main Content -->
     <div class="mainContainer">
+
         {% block content %}
         <!-- Content will be injected here -->
         {% endblock %}
@@ -46,5 +69,6 @@
             <span>&copy; 2025 Auction App. All rights reserved.</span>
         </div>
     </footer>
+    <script src="{{ url_for('static', filename='js/script.js') }}?v={{ range(1, 10000) | random }}"></script>
 </body>
 </html>

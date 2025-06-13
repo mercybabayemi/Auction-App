@@ -6,5 +6,23 @@
 <div class="indexContainer">
     <h1>Welcome to the Auction App</h1>
     <p>Find the best deals on your favorite items!</p>
+
+    <div class="featured-auctions">
+        {% with header_title='Featured Auctions', show_create_btn=false %}
+            {% include 'partials/auction_header.html' %}
+        {% endwith %}
+
+        <div class="auction-list">
+            {% if featured_auctions %}
+                {% for auction in featured_auctions %}
+                    {% include 'partials/auction_card.html' %}
+                {% endfor %}
+            {% else %}
+                <div class="no-auctions">
+                    <p>No featured auctions available at the moment.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

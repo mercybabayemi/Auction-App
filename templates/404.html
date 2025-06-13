@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found 404 {% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1>404 - Page Not Found</h1>
+    <p>Oops! The page you're looking for doesn't exist.</p>
+    <p>Here are some helpful links instead:</p>
+    <ul class="error-links">
+        <li><a href="{{ url_for('user_router.index') }}">Home Page</a></li>
+        <li><a href="{{ url_for('auth_router.login') }}">Login</a></li>
+        <li><a href="{{ url_for('auth_router.register') }}">Register</a></li>
+    </ul>
+</div>
+{% endblock %}

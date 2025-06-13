@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error (500){% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1>500 - Server Error</h1>
+    <p>Something went wrong on our end. We're working to fix it!</p>
+    <p>Please try again later or contact support if the problem persists.</p>
+    <ul class="error-links">
+        <li><a href="{{ url_for('user_router.index') }}">Home Page</a></li>
+        <li><a href="{{ url_for('user_router.auction') }}">Browse Auctions</a></li>
+        <li><a href="#" onclick="window.location.reload()">Refresh Page</a></li>
+    </ul>
+</div>
+{% endblock %}

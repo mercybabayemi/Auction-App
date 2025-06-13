@@ -1,0 +1,9 @@
+<!-- templates/partials/auction_header.html -->
+<div class="auction-header">
+    <h1>{{ header_title }}</h1>
+    {% if current_user.is_authenticated and show_create_btn %}
+    <a href="{{ url_for('auction_router.create_auction') }}" class="btn btn-create">
+        <i class="fas fa-plus"></i> Create Auction
+    </a>
+    {% endif %}
+</div>

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Forbidden (403){% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1>403 - Access Forbidden</h1>
+    <p>You don't have permission to access this page.</p>
+    <p>If you believe this is an error, please contact support.</p>
+    <ul class="error-links">
+        <li><a href="{{ url_for('user_router.index') }}">Home Page</a></li>
+        <li><a href="{{ url_for('auth_router.login') }}">Login</a></li>
+        <li><a href="{{ url_for('auth_router.register') }}">Register</a></li>
+    </ul>
+</div>
+{% endblock %}

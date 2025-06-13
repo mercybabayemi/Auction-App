@@ -1,0 +1,18 @@
+<!-- templates/partials/auction_filters.html -->
+<div class="auction-filters">
+    <form method="GET" action="{{ url_for('auction_router.list_auctions') }}">
+        <select name="category" onchange="this.form.submit()">
+            <option value="">All Categories</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}" {% if selected_category==category.id %}selected{% endif %}>
+                {{ category.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <input type="text" name="search" placeholder="Search auctions..." value="{{ search_query or '' }}">
+        <button type="submit" class="btn btn-search">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </form>
+</div>
