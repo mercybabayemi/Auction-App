@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 
 from flask import current_app
-from flask_login import current_user
 from werkzeug.utils import secure_filename
 
 from src.models.auction import Auction
@@ -11,7 +10,7 @@ class AuctionRepository:
     @staticmethod
     def get_active_auctions():
         """Get all approved and active auctions"""
-        return Auction.objects.filter(is_approved=True, status="Active")
+        return Auction.objects.filter(status="Active")
 
     @staticmethod
     def get_auction_by_id(auction_id):
@@ -41,38 +40,20 @@ class AuctionRepository:
             end_time=end_time,
             item_condition=item_condition,
             seller=seller,
-            status="Pending",  # Should be pending until approved
-            category=category,
-            is_approved=False  # Default to not approved
+            status="Active",  # Should be pending until approved
+            category=category
         )
 
         if images:
             auction.image_filenames = [AuctionRepository.save_auction_image(img) for img in images]
-
         auction.save()
         return auction
 
     @staticmethod
     def get_featured_auctions(limit=6):
         """Get featured active auctions"""
-        return Auction.objects.filter(is_approved=True, status="Active").order_by("-start_time").limit(limit)
+        return Auction.objects.filter(status="Active").order_by("-start_time").limit(limit)
 
-    @staticmethod
-    def approve(auction_id):
-        """
-        Approve the auction for public listing
-        Args:
-            auction_id: ID of the auction to approve
-        Returns:
-            The approved auction
-        """
-        auction = Auction.objects.get(id=auction_id)
-        if not auction.is_approved:
-            auction.is_approved = True
-            if auction.status == "Pending":
-                auction.status = "Active"
-            auction.save()
-        return auction
 
     @staticmethod
     def close_auction(auction_id):

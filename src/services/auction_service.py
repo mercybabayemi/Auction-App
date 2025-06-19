@@ -1,10 +1,6 @@
-from flask_login import login_required, current_user
 from mongoengine import Q
-
-from src.exceptions.unauthorized_access import UnauthorizedAccess
 from src.models.auction import Auction
 from src.repositories.auction_repository import AuctionRepository
-from src.repositories.user_repository import UserRepository
 
 
 class AuctionService:
@@ -17,10 +13,9 @@ class AuctionService:
         return AuctionRepository.get_auction_by_id(auction_id)
 
     @staticmethod
-    @login_required
     def create_auction(item_title, item_description, starting_bid, end_time,
                      item_condition, seller, images=None, category='Other'):
-        auction = AuctionRepository.create_auction(
+        auction = Auction(
             item_title=item_title,
             item_description=item_description,
             starting_bid=float(starting_bid),
@@ -28,8 +23,9 @@ class AuctionService:
             end_time=end_time,
             item_condition=item_condition,
             seller=seller,
-            status="Active",
-            category=category
+            status="Active",  # Should be pending until approved
+            category=category,
+            images=images,
         )
         return auction
 

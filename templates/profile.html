@@ -1,0 +1,107 @@
+{%  extends "base.html" %}
+
+{%  block title %}Profile page{%  endblock %}
+
+{%  block content %}
+    <div class="profile-container">
+    <div class="profile-header">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <div class="profile-actions">
+            <button class="btn btn-delete" id="deleteProfileBtn">Delete Profile</button>
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-info">
+            <div class="info-card">
+                <h3>Personal Information</h3>
+                <div class="info-item">
+                    <span class="info-label">Username:</span>
+                    <span class="info-value">{{ user.username}}</span>
+                </div>
+                {% if user.first_name or user.last_name %}
+                    {% if user.first_name %}
+                    <div class="info-item">
+                        <span class="info-label">First name:</span>
+                        <span class="info-value">{{ user.first_name }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if user.last_name %}
+                    <div class="info-item">
+                        <span class="info-label">Last name:</span>
+                        <span class="info-value">{{ user.last_name }}</span>
+                    </div>
+                    {% endif %}
+                {% endif %}
+                <div class="info-item">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">{{ user.email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Member since:</span>
+                    <span class="info-value">{{ user.created_at.strftime('%B %d, %Y') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bid-history">
+            <h2>Your Bid History</h2>
+            {% if user.bids %}
+            <div class="bid-table">
+                <div class="bid-table-header">
+                    <div class="bid-header-item">Item</div>
+                    <div class="bid-header-item">Amount</div>
+                    <div class="bid-header-item">Date</div>
+                    <div class="bid-header-item">Status</div>
+                </div>
+                {% for bid in user.bids %}
+                <div class="bid-table-row">
+                    <div class="bid-item">{{ bid.item.name }}</div>
+                    <div class="bid-item">${{ "%.2f"|format(bid.amount) }}</div>
+                    <div class="bid-item">{{ bid.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+                    <div class="bid-item">{{ 'Winning' if bid.is_winning else 'Outbid' }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-bids">You haven't placed any bids yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Profile Confirmation Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Confirm Profile Deletion</h2>
+        <p>Are you sure you want to delete your profile? This action cannot be undone.</p>
+        <div class="modal-actions">
+            <form action="{{ url_for('user_router.delete_profile') }}" method="POST">
+                <button type="button" class="btn btn-cancel">Cancel</button>
+                <button type="submit" class="btn btn-confirm-delete">Delete My Profile</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Profile -->
+<div id="editModal" class="EditModal">
+    <div class="edit-modal">
+        <h1>Edit Profile</h1>
+        <form method="POST" action="{{ url_for('user_router.edit_profile') }}">
+                 <div class="form-group">
+                    <label for="first_name">First name:</label>
+                    <input type="text" id="first_name" name="name" required>
+                </div>
+                 <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="name" required>
+                </div>
+                <button type="submit" class="btn btn-confirm-edit">Submit</button>
+        </form>
+    </div>
+</div>
+
+{% endblock  %}

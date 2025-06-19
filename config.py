@@ -1,5 +1,4 @@
 import os
-from mongoengine import connect
 
 
 class Config:
@@ -9,15 +8,18 @@ class Config:
     # JWT Configuration
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'your-jwt-secret-key-here'
     JWT_TOKEN_LOCATION = ['cookies']
-    JWT_ACCESS_TOKEN_EXPIRES = 3600  # 1 hour in seconds
-    JWT_COOKIE_SECURE = False  # Set to True in production with HTTPS
-    JWT_COOKIE_CSRF_PROTECT = True
-    JWT_CSRF_CHECK_FORM = True
-    JWT_COOKIE_DOMAIN = 'localhost'
-    REMEMBER_COOKIE_DOMAIN = 'localhost'
-    REMEMBER_COOKIE_SECURE = False
+    JWT_ACCESS_TOKEN_EXPIRES = 86400  # 24 hours
+    JWT_COOKIE_SECURE = False  # True in production
+    JWT_COOKIE_HTTPONLY = True
+    JWT_COOKIE_SAMESITE = 'Lax'
+    JWT_COOKIE_DOMAIN = None
+    JWT_COOKIE_PATH = '/'
+    JWT_SESSION_COOKIE = True
 
-    SESSION_PROTECTION = 'strong'
+
+    # Disable CSRF for simplicity (enable in production)
+    JWT_COOKIE_CSRF_PROTECT = False
+    JWT_CSRF_CHECK_FORM = False
 
     # MongoDB Configuration
     MONGODB_SETTINGS = {

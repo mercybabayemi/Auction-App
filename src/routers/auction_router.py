@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, abort
-from flask_login import login_required, current_user
-from flask_socketio import emit
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from src.services.auction_service import AuctionService
 from src.services.bid_service import BidService
 from datetime import datetime
@@ -55,7 +54,6 @@ def auction_detail(auction_id):
 
 
 @auction_router.route('/create', methods=['GET', 'POST'])
-@login_required
 def create_auction():
     if request.method == 'POST':
         try:
@@ -68,6 +66,7 @@ def create_auction():
             category = request.form.get('category')
             images = request.files.getlist('images')
 
+            user_id = get_jwt_identity()
             # Create auction
             auction = AuctionRepository.create_auction(
                 item_title=item_title,
@@ -75,7 +74,7 @@ def create_auction():
                 starting_bid=starting_bid,
                 end_time=end_time,
                 item_condition=item_condition,
-                seller=current_user._get_current_object(),
+                seller= user_id,
                 images=images,
                 category=category
             )

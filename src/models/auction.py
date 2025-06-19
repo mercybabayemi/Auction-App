@@ -15,7 +15,6 @@ class Auction(Document):
     image_filenames = ListField(StringField(), default=list)
     start_time = DateTimeField(default=datetime.utcnow)
     end_time = DateTimeField(required=True)
-    is_approved = BooleanField(default=False)
     category = StringField(choices=['Electronics', 'Fashion', 'Home', 'Collectibles', 'Other'])
 
     def to_dict(self):
@@ -31,7 +30,6 @@ class Auction(Document):
             'image_filenames': self.image_filenames,
             'start_time': self.start_time.isoformat(),
             'end_time': self.end_time.isoformat(),
-            'is_approved': self.is_approved,
             'category': self.category,
             'bid_count': len(self.bids)
         }

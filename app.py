@@ -1,32 +1,32 @@
-from datetime import datetime
-
 from flask_socketio import SocketIO
-from flask import Flask, render_template, has_request_context, current_app
-from flask_jwt_extended import JWTManager, current_user, get_jwt_identity, verify_jwt_in_request
-from flask_login import LoginManager, login_user  # Add Flask-Login
+from flask import Flask, render_template, request
+from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request
 from flask_mongoengine import MongoEngine
 from bson import ObjectId
-import logging
 from config import Config
 from src.exceptions.user_does_not_exists import UserDoesNotExist
-from src.routers.auction_router import auction_router
-from src.routers.auth_router import auth_router
 from src.routers.user_router import user_router
+from src.routers.auth_router import auth_router
+from src.routers.auction_router import auction_router
 from src.routers.socket_events import register_socketio_events
 
 socketio = SocketIO()
+
+
 def create_app(test_config=None):
     my_app = Flask(__name__, instance_relative_config=True)
-
     my_app.config.from_object(Config)
+
+    # Initialize extensions
     MongoEngine(my_app)
-
-    # Initialize Flask extensions
     jwt = JWTManager(my_app)
+    socketio.init_app(my_app)
 
+    # JWT configuration
     from src.models.user import User
+
     @jwt.user_identity_loader
-    def user_identity_lookup(user):
+    def user_identity_loader(user):
         print(f"Identity loader received: {user} (type: {type(user)})")
         return user if user else None
 
@@ -40,42 +40,50 @@ def create_app(test_config=None):
             print(f"Lookup failed: {str(Exception)}")
             return None
 
-    socketio.init_app(my_app)
-    register_socketio_events(socketio)
-
-    # 🔹 Initialize Flask-Login
-    login_manager = LoginManager()
-    login_manager.init_app(my_app)
-
-    # 🔹 User Loader (Required for Flask-Login)
-    @login_manager.user_loader
-    def load_user(user_id):
-        try:
-            return User.objects.get(id=ObjectId(user_id))
-        except Exception as e:
-            return None  # Return None if user not found
-
-
-    #THis ensures Flask-Login sees JWT login
     @my_app.before_request
-    def before_request():
-        # 1. First try JWT (for API requests)
+    def log_cookies():
+        print("\n=== Incoming Request ===")
+        print("Cookies:", request.cookies)
         try:
             verify_jwt_in_request(optional=True)
-            user_id = get_jwt_identity()
-            if user_id:
-                try:
-                    user = User.objects.get(id=ObjectId(user_id))
-                    login_user(user)  # Also set Flask-Login session
-                except Exception as e:
-                    logging.error(f"User lookup failed: {str(e)}")
+            identity = get_jwt_identity()
+
+            print("JWT Identity:", identity)
         except Exception as e:
-            logging.error(f"JWT verification failed: {str(e)}")
-        # 2. Fall back to Flask-Login session (for browser requests)
-        # check current_user
-        if not hasattr(current_user, 'is_authenticated') or not current_user.is_authenticated:
-            # Handle guest users
-            pass
+            print("JWT Verification Error:", str(e))
+        print("=======================\n")
+
+    # Template context processor
+    @my_app.context_processor
+    def inject_auth_status():
+        def is_authenticated():
+            try:
+                # Verify without raising exceptions
+                verify_jwt_in_request(optional=True)
+                identity = get_jwt_identity()
+                if identity:
+                    print(f"Successful auth for user: {identity}")
+                    return True
+                return False
+            except Exception as e:
+                print(f"Auth verification failed: {e}")
+                return False
+
+        def get_current_user():
+            try:
+                verify_jwt_in_request(optional=True)
+                if user_id := get_jwt_identity():
+                    return User.objects.get(id=ObjectId(user_id))
+            except Exception as e:
+                print(f"User lookup failed: {e}")
+            return None
+
+        return dict(
+            is_authenticated=is_authenticated,
+            current_user=get_current_user
+        )
+
+
 
     # Register blueprints
     with my_app.app_context():
@@ -83,11 +91,13 @@ def create_app(test_config=None):
         my_app.register_blueprint(auth_router, url_prefix='/auth')
         my_app.register_blueprint(auction_router, url_prefix='/auction')
 
+
+    # Basic routes
     @my_app.route('/')
     def index():
         return render_template('index.html')
 
-    #Error handler for 404
+    # Error handlers
     @my_app.errorhandler(404)
     def page_not_found(e):
         return render_template('404.html'), 404
@@ -100,8 +110,11 @@ def create_app(test_config=None):
     def internal_server_error(e):
         return render_template('500.html'), 500
 
+    # Socket.IO events
+    register_socketio_events(socketio)
 
     return my_app
+
 
 if __name__ == '__main__':
     app = create_app()

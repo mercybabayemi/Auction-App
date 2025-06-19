@@ -1,5 +1,6 @@
+from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from flask_socketio import emit
-from flask_login import current_user
+from src.models.user import User
 from src.services.auction_service import AuctionService
 from src.services.bid_service import BidService
 from datetime import datetime
@@ -8,8 +9,16 @@ def register_socketio_events(socketio):
     @socketio.on('place_bid')
     def handle_place_bid(data):
         try:
-            if not current_user.is_authenticated:
-                emit('bid_error', {'message': 'Authentication required'})
+            # Verify JWT and get user identity
+            try:
+                verify_jwt_in_request()
+                user_id = get_jwt_identity()
+                if not user_id:
+                    emit('bid_error', {'message': 'Authentication required'})
+                    return
+                user = User.objects.get(id=user_id)
+            except Exception as e:
+                emit('bid_error', {'message': 'Authentication failed'})
                 return
 
             auction_id = data['auction_id']
@@ -31,7 +40,7 @@ def register_socketio_events(socketio):
             # Place bid
             bid = BidService.place_bid(
                 auction_id=auction_id,
-                bidder_id=current_user.id,
+                bidder_id=user.id,
                 bid_amount=bid_amount
             )
 
@@ -39,8 +48,8 @@ def register_socketio_events(socketio):
             emit('new_bid', {
                 'auction_id': auction_id,
                 'bid_amount': bid_amount,
-                'bidder_id': str(current_user.id),
-                'bidder_name': current_user.username,
+                'bidder_id': str(user.id),
+                'bidder_name': user.username,
                 'timestamp': bid.created_at.isoformat()
             }, broadcast=True)
 

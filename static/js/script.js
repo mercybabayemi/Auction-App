@@ -1,21 +1,52 @@
 document.addEventListener('DOMContentLoaded', function() {
-        // Handle close button clicks using event delegation
-        document.getElementById('flash-container').addEventListener('click', function(e) {
-            if (e.target.classList.contains('close-flash')) {
-                const flashMsg = e.target.closest('.flash-message');
-                flashMsg.style.opacity = '0';
-                setTimeout(() => flashMsg.remove(), 500);
-            }
-        });
+    // Handle close button clicks using event delegation
+    document.getElementById('flash-container').addEventListener('click', function(e) {
+        if (e.target.classList.contains('close-flash')) {
+            const flashMsg = e.target.closest('.flash-message');
+            flashMsg.style.opacity = '0';
+            setTimeout(() => flashMsg.remove(), 500);
+        }
+    });
 
-        // Auto-hide flash messages after 5 seconds
-        const flashMessages = document.querySelectorAll('.flash-message');
-        flashMessages.forEach(msg => {
-            setTimeout(() => {
-                msg.style.opacity = '0';
-                setTimeout(() => msg.remove(), 500);
-            }, 5000);
-        });
+    // Auto-hide flash messages after 5 seconds
+    const flashMessages = document.querySelectorAll('.flash-message');
+    flashMessages.forEach(msg => {
+        setTimeout(() => {
+            msg.style.opacity = '0';
+            setTimeout(() => msg.remove(), 500);
+        }, 5000);
+    });
+
+    //Delete Profile Modal
+    const deleteProfileBtn = document.getElementById('deleteProfileBtn');
+    const modal = document.getElementById('deleteModal');
+    const closeBtn = document.querySelector('.close');
+    const cancelBtn = document.querySelector('.btn-cancel');
+
+    deleteProfileBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    document.getElementById('editProfileBtn').addEventListener('click', function() {
+        document.getElementById('editModal').style.display = 'block';
+});
+
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    //Edit profile modal
+
 });
 
 // document.addEventListener('DOMContentLoaded', function() {

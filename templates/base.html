@@ -24,13 +24,15 @@
                                 <li><a class="nav-link" href="{{ url_for('user_router.auction') }}">Auctions</a></li>
                                 <li><a class="nav-link" href="{{ url_for('user_router.about') }}">About</a></li>
                                 <li><a class="nav-link" href="{{ url_for('user_router.contact') }}">Contact</a></li>
+                                {% if is_authenticated()%}
+                                    <li><a class="nav-link" href="{{ url_for('user_router.profile') }}">Profile</a></li>
+                                {% endif %}
                             </ul>
                         </nav>
                     </div>
                 </div>
                 <div class="login-logout">
-                        {{ current_user.is_authenticated }}
-                    {% if current_user.is_authenticated %}
+                    {% if is_authenticated() %}
                         <a class="call-to-action-btn" href="{{ url_for('auth_router.logout') }}">Logout</a>
                     {% else %}
                         <a class="call-to-action-btn" href="{{ url_for('auth_router.login') }}">Login</a>
