@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Auction App{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    {% block extra_styles %}
-    {% endblock %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+
+    {% block extra_styles %}{% endblock %}
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -24,7 +25,7 @@
                                 <li><a class="nav-link" href="{{ url_for('user_router.auction') }}">Auctions</a></li>
                                 <li><a class="nav-link" href="{{ url_for('user_router.about') }}">About</a></li>
                                 <li><a class="nav-link" href="{{ url_for('user_router.contact') }}">Contact</a></li>
-                                {% if is_authenticated()%}
+                                {% if is_authenticated() or current_user and current_user.is_active %}
                                     <li><a class="nav-link" href="{{ url_for('user_router.profile') }}">Profile</a></li>
                                 {% endif %}
                             </ul>
@@ -71,6 +72,34 @@
             <span>&copy; 2025 Auction App. All rights reserved.</span>
         </div>
     </footer>
+
+    <script>
+        const socket = io({
+            transports: ['websocket'],
+            upgrade: false,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000
+        });
+        console.log("Socket.IO connected", socket.connected);
+
+        // Debugging events
+        socket.on('connect', () => {
+            console.log('Connected with ID:', socket.id);
+        });
+
+        socket.on('disconnect', (reason) => {
+            console.log('Disconnected:', reason);
+        });
+
+        socket.on('connect_error', (error) => {
+            console.log('Connection error:', error);
+        });
+    </script>
+    <script>
+        window.CLOUDINARY_CLOUD_NAME = "{{ config['CLOUDINARY_CLOUD_NAME'] }}";
+        window.CLOUDINARY_UNSIGNED_PRESET = "{{ config['CLOUDINARY_UNSIGNED_PRESET'] }}";
+    </script>
+    <script src="{{ url_for('static', filename='js/cloudinary.js') }}?v={{ range(1, 10000) | random }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}?v={{ range(1, 10000) | random }}"></script>
 </body>
 </html>

@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from src.exceptions.invalid_credentials import InvalidCredentials
 from src.exceptions.unauthorized_access import UnauthorizedAccess
 from src.exceptions.user_does_not_exists import UserDoesNotExist
+from src.models import user
 from src.models.user import User
 from src.repositories.user_repository import UserRepository
 from src.services.auction_service import AuctionService
@@ -58,9 +59,9 @@ def profile():
     try:
         user_id = get_jwt_identity()
         print(f"got {type(user_id)} {user_id}")
-        user = UserRepository.get_user_by_id(ObjectId(user_id))
-        print(f"{user.username} {user.email} {user.first_name} {user.last_name}")
-        return render_template('profile.html', user=user)
+        gotten_user = UserRepository.get_user_by_id(ObjectId(user_id))
+        print(f"{gotten_user.username} {gotten_user.email} {gotten_user.first_name} {gotten_user.last_name}")
+        return render_template('profile.html', user=gotten_user)
     except UserDoesNotExist as e:
         flash("User does not exist.", "error")
     except UnauthorizedAccess as e:

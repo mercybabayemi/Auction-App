@@ -12,5 +12,19 @@
         <li><a href="{{ url_for('auth_router.login') }}">Login</a></li>
         <li><a href="{{ url_for('auth_router.register') }}">Register</a></li>
     </ul>
+
+    <div style="margin-top: 20px">
+         <p style="margin-top: 15px; margin-bottom: 10px; color: #666; font-size: 14px;">Had an account?</p>
+        <a href="{{ url_for('auth_router.reactivate') }}"
+        style="display: inline-block;
+              padding: 8px 16px;
+              background-color: #f0f0f0;
+              color: #333;
+              text-decoration: none;
+              border-radius: 7px;
+              border: 1px solid #ddd;
+              transition: all 0.3s ease;"
+        >Reactivate</a>
+    </div>
 </div>
 {% endblock %}

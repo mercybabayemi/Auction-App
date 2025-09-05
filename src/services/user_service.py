@@ -33,4 +33,9 @@ class UserService:
         print(f"Editing profile for {user}")
         if not user:
             raise UserDoesNotExist("User not found")
-        UserRepository.update_user_names(user_id, first_name, last_name)
+        update_data = {}
+        if first_name is not None:
+            update_data["first_name"] = first_name
+        if last_name is not None:
+            update_data["last_name"] = last_name
+        UserRepository.update_user_names(user_id, **update_data)

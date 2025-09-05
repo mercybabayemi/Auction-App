@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from src.models.user import User
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -25,9 +27,9 @@ class UserRepository:
 
     @staticmethod
     def verify_password(user, password):
-        print(f"Comparing password hash: {user.password}")
+        print(f"Comparing password hash for user: {user}")
         result = check_password_hash(user.password, password)
-        print(f"Password match: {result}")
+        print(f"Password matched after checking password")
         return result
 
     @staticmethod
@@ -43,9 +45,22 @@ class UserRepository:
         return User.objects(id=user_id, is_active=True).first()
 
     @staticmethod
-    def update_user_names(user_id, first_name, last_name):
-        return User.objects(id=user_id).update(first_name=first_name, last_name=last_name)
+    def update_user_names(user_id, **updated_data):
+        update_fields = {}
+        for key, value in updated_data.items():
+            if value is not None:
+                update_fields[key] = value
+
+        if update_fields:
+            update_fields["updated_at"] = datetime.utcnow()
+            return User.objects(id=user_id).update(**update_fields)
 
     @staticmethod
     def update_user_status(user_id, is_active):
-        return User.objects(id=user_id).update(is_active=is_active)
+        print(f"Updating user {user_id} to is_active={is_active}")
+        result = User.objects(id=user_id).update(
+            is_active=is_active,
+            updated_at=datetime.utcnow()
+        )
+        print(f"Update result: {result}")  # Should return 1 if successful
+        return result

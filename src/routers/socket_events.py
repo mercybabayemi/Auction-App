@@ -4,10 +4,21 @@ from src.models.user import User
 from src.services.auction_service import AuctionService
 from src.services.bid_service import BidService
 from datetime import datetime
+from flask import request
 
 def register_socketio_events(socketio):
+    @socketio.on('connect')
+    def handle_connect():
+        print(f'Client connected: {request.sid}')
+        emit('connection_response', {'status': 'connected'})
+
+    @socketio.on('disconnect')
+    def handle_disconnect():
+        print(f'Client disconnected: {request.sid}')
+
     @socketio.on('place_bid')
     def handle_place_bid(data):
+        print("Received bid:", data)
         try:
             # Verify JWT and get user identity
             try:

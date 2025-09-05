@@ -5,6 +5,17 @@ class Config:
     # App Configuration
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-very-secret-key-here'
 
+    # Cloudinary configuration
+    CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
+    CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
+    CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
+
+    # Image upload settings
+    MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    CLOUDINARY_UPLOAD_FOLDER = 'auction_app/images'  # Folder in Cloudinary
+    CLOUDINARY_UNSIGNED_PRESET = 'auction_unsigned_preset'
+
     # JWT Configuration
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'your-jwt-secret-key-here'
     JWT_TOKEN_LOCATION = ['cookies']

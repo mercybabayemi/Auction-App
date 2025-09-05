@@ -26,4 +26,5 @@ class BidRepository:
 
     @staticmethod
     def get_highest_bid(auction_id):
-        return Bid.objects.get(auction_id=auction_id).order_by('bid_amount').first().bid_amount
+        #return Bid.objects.get(auction_id=auction_id).order_by('bid_amount').first().bid_amount
+        return Bid.objects(auction_id=auction_id).order_by('-bid_amount').first()

@@ -6,12 +6,12 @@
         <div class="col-lg-8">
             <h2 class="mb-4 text-center">Create New Auction</h2>
 
-            <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
-                <!--  form.hidden_tag()  -->
+            <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate
+                  action="{{ url_for('auction_router.create_auction') }}">
                 <!-- Item Details Card -->
                 <div class="card mb-4 shadow-sm">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Item Details</h5>
+                        <h5 style="font-size: large" class="mb-0">Item Details</h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -26,9 +26,9 @@
                         <div class="mb-3">
                             <label for="item_description" class="form-label">Description*</label>
                             <textarea class="form-control" id="item_description" name="item_description"
-                                      rows="4" required minlength="20" maxlength="1000"></textarea>
+                                      rows="4" required minlength="10" maxlength="1000"></textarea>
                             <div class="invalid-feedback">
-                                Please provide a detailed description (20-1000 characters).
+                                Please provide a detailed description (10-1000 characters).
                             </div>
                         </div>
 
@@ -69,21 +69,21 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="starting_bid" class="form-label">Starting Price ($)*</label>
+                                <label for="starting_bid" class="form-label">Starting Price (NGN)*</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text">NGN</span>
                                     <input type="number" class="form-control" id="starting_bid"
                                            name="starting_bid" step="0.01" min="0.01" required>
                                 </div>
                                 <div class="invalid-feedback">
-                                    Please enter a valid starting price (minimum $0.01).
+                                    Please enter a valid starting price (minimum NGN 0.01).
                                 </div>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label for="end_time" class="form-label">End Date & Time*</label>
                                 <input type="datetime-local" class="form-control" id="end_time"
-                                       name="end_time" required>
+                                       name="end_time"  required min="{{ datetime.utcnow().strftime('%Y-%m-%dT%H:%M') }}">
                                 <div class="invalid-feedback">
                                     Please select an end date in the future.
                                 </div>
@@ -124,4 +124,5 @@
         </div>
     </div>
 </div>
+
 {% endblock  %}
