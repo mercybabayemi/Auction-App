@@ -10,6 +10,7 @@ Responsibilities:
 import logging
 from datetime import datetime
 
+from bson import ObjectId
 from flask import current_app, url_for
 from mongoengine import Q
 from mongoengine.errors import DoesNotExist
@@ -68,6 +69,8 @@ class AuctionRepository:
     @staticmethod
     def get_auction_by_id(auction_id):
         try:
+            if isinstance(auction_id, str):
+                auction_id = ObjectId(auction_id)
             return Auction.objects.get(id=auction_id)
         except DoesNotExist:
             logger.debug(f"Auction not found with id={auction_id}")
@@ -75,6 +78,15 @@ class AuctionRepository:
         except Exception as exc:
             logger.error(f"Error getting auction {auction_id}: {exc}")
             return None
+
+    @staticmethod
+    def update_current_bid(auction_id: ObjectId, bid_amount: float):
+        auction = Auction.objects(id=auction_id).first()
+        if auction:
+            auction.current_bid = bid_amount
+            auction.save()
+            return auction
+        return None
 
     @staticmethod
     def get_active_auctions():

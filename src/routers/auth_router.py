@@ -1,4 +1,5 @@
 from bson import ObjectId
+import logging
 from flask import Blueprint, render_template, request, redirect, url_for, flash, make_response, jsonify
 from flask_jwt_extended import (
     create_access_token, set_access_cookies, unset_jwt_cookies, jwt_required, get_jwt_identity, decode_token
@@ -49,15 +50,17 @@ def login():
             print(f"Attempting login for username: {username}")
             user = UserService.login_user(username, password)
             print(f"User found: {user.username}, ID: {user.id}")
+            logging.info(f"User created successfully: {user}")
 
             if not user.is_active:
                 # Create a limited-time reactivation token
                 reactivate_token = create_access_token(identity=str(user.id), additional_claims={'purpose': 'reactivate'})
+                logging.info(f"Reactivate token: {reactivate_token}")
                 flash('Your account is deactivated. Please reactivate it.', 'warning')
                 return redirect(url_for('auth_router.reactivate', token= reactivate_token, _external=False))
 
             access_token = create_access_token(identity=str(user.id))
-            response = make_response(redirect(url_for('user_router.auction')))
+            response = make_response(redirect(url_for('auction_router.list_auctions')))
             set_access_cookies(response, access_token)
             print(f"Current user after login is {username}")
             flash('Login successful!', 'success')
@@ -66,7 +69,6 @@ def login():
             flash(str(e), 'error')
         except Exception as e:
             flash('An error occurred during login', 'error')
-
     return render_template('auth/login.html')
 
 

@@ -24,8 +24,14 @@
             </div>
         </div>
 
-        <a href="{{ url_for('auction_router.auction_detail', auction_id=auction.id) }}" class="btn btn-bid">
-            View Auction
-        </a>
+<!--        {% if is_authenticated() or (current_user and current_user.is_active) %}-->
+<!--            &lt;!&ndash; Authenticated user can view details &ndash;&gt;-->
+<!--            <a href="{{ url_for('auction_router.auction_detail', auction_id=auction.id) }}" class="btn btn-bid">-->
+<!--                View Auction-->
+<!--            </a>-->
+<!--        {% endif %}-->
+
+        <a href="{{ url_for('auction_router.auction_detail', auction_id=auction.id) }}" class="btn btn-bid">View Auction Details</a>
+
     </div>
 </div>

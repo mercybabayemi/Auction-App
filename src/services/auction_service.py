@@ -6,7 +6,7 @@ AuctionService (Business / Domain layer)
 """
 import logging
 from datetime import datetime
-
+from bson import ObjectId
 from flask import current_app
 
 from src.repositories.auction_repository import AuctionRepository
@@ -93,12 +93,20 @@ class AuctionService:
         return auction
 
     @staticmethod
+    def update_current_bid(auction_id: ObjectId, bid_amount: float):
+        return AuctionRepository.update_current_bid(auction_id, bid_amount)
+
+    @staticmethod
     def get_auction_by_id(auction_id):
         logger.debug(f"AuctionService.get_auction_by_id: {auction_id}")
-        auction = AuctionRepository.get_auction_by_id(auction_id)
-        if not auction:
-            logger.info(f"Auction not found: {auction_id}")
-        return auction
+        try:
+            if not ObjectId.is_valid(auction_id):
+                logger.info(f"Auction_id not a valid object id: {auction_id}")
+                return None
+            return AuctionRepository.get_auction_by_id(auction_id=ObjectId(auction_id))
+        except Exception as e:
+            logger.error(f"Error fetching auction by id: {e}")
+            return None
 
     @staticmethod
     def search_auctions(search_query=None, category=None, status=None):
@@ -106,8 +114,8 @@ class AuctionService:
         return AuctionRepository.search_auctions(search_query=search_query, category=category, status=status)
 
     @staticmethod
-    def get_featured_auctions(limit=6):
-        auctions = AuctionRepository.get_featured_auctions(limit)
+    def get_featured_auctions(limit=None):
+        auctions = AuctionRepository.get_featured_auctions(limit=limit)
         return auctions
 
     @staticmethod

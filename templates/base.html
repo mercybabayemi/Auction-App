@@ -22,7 +22,7 @@
                         <nav>
                             <ul>
                                 <li><a class="nav-link" href="{{ url_for('user_router.index') }}">Home</a></li>
-                                <li><a class="nav-link" href="{{ url_for('user_router.auction') }}">Auctions</a></li>
+                                <li><a class="nav-link" href="{{ url_for('auction_router.list_auctions') }}">Auctions</a></li>
                                 <li><a class="nav-link" href="{{ url_for('user_router.about') }}">About</a></li>
                                 <li><a class="nav-link" href="{{ url_for('user_router.contact') }}">Contact</a></li>
                                 {% if is_authenticated() or current_user and current_user.is_active %}
@@ -84,15 +84,15 @@
 
         // Debugging events
         socket.on('connect', () => {
-            console.log('Connected with ID:', socket.id);
+            console.log('Socket connected with ID:', socket.id);
         });
 
         socket.on('disconnect', (reason) => {
-            console.log('Disconnected:', reason);
+            console.log('Socket disconnected:', reason);
         });
 
         socket.on('connect_error', (error) => {
-            console.log('Connection error:', error);
+            console.log('socket connection error:', error);
         });
     </script>
     <script>

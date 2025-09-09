@@ -9,8 +9,11 @@ from src.models import user
 from src.models.user import User
 from src.repositories.user_repository import UserRepository
 from src.services.auction_service import AuctionService
+from src.services.bid_service import BidService
 from src.services.contact_service import ContactMessageService
 from src.services.user_service import UserService
+import logging
+logger = logging.getLogger(__name__)
 
 user_router = Blueprint('user_router', __name__, url_prefix='/user')
 
@@ -24,10 +27,6 @@ def protected():
 def index():
     featured_auctions = AuctionService.get_featured_auctions()
     return render_template("index.html", featured_auctions=featured_auctions)
-
-@user_router.route('/auction')
-def auction():
-    return render_template("auction.html")
 
 @user_router.route('/about')
 def about():
@@ -56,20 +55,26 @@ def contact():
 @user_router.route('/profile', methods=['GET'])
 @jwt_required()
 def profile():
+    user_id = get_jwt_identity()
     try:
-        user_id = get_jwt_identity()
+        logger.info(f"Fetching profile")
         print(f"got {type(user_id)} {user_id}")
-        gotten_user = UserRepository.get_user_by_id(ObjectId(user_id))
+        gotten_user = UserService.get_user_by_id(ObjectId(user_id))
         print(f"{gotten_user.username} {gotten_user.email} {gotten_user.first_name} {gotten_user.last_name}")
-        return render_template('profile.html', user=gotten_user)
+
+        user_bids = BidService.get_user_bids(ObjectId(gotten_user.id))
+        print(f"User {gotten_user.username} has {len(user_bids)} bids")
+        logger.info(f"User {gotten_user.username} has {len(user_bids)}")
+        return render_template('profile.html', user=gotten_user, bids=user_bids)
     except UserDoesNotExist as e:
+        logger.warning(f"User profile not found: {user_id}")
         flash("User does not exist.", "error")
     except UnauthorizedAccess as e:
+        logger.exception("Unauthorized access")
         flash(f"UnauthorizedAccess: {e}", "error")
     except Exception as e:
+        logger.exception("Error fetching user profile")
         flash(f"{e}", "error")
-
-
 
 @user_router.route('/profile/delete', methods=['POST'])
 @jwt_required()
@@ -91,15 +96,22 @@ def delete_profile():
 def edit_profile():
     gotten_id = get_jwt_identity()
     user_id = ObjectId(gotten_id)
-    user = UserRepository.get_user_by_id(user_id)
+    gotten_user = UserRepository.get_user_by_id(user_id)
     try:
-        if user:
+        if gotten_user:
             first_name = request.form.get('first_name')
             last_name = request.form.get('last_name')
             UserService.edit_profile(user_id, first_name, last_name)
+            logger.info(f"User edited {first_name} {last_name}")
             flash(f"Profile updated successfully!", "success")
+
+            user_bids = BidService.get_user_bids(ObjectId(gotten_user.id))
+
+            logger.info(f"User {gotten_user.username} has {len(user_bids)}")
+
             return redirect(url_for('user_router.profile'))
     except UserDoesNotExist as e:
+        logger.warning("Delete user attempted for user not found")
         flash("User does not exist.", "error")
     except Exception as e:
         flash(f"Error occurred while trying to edit profile: {str(e)}")

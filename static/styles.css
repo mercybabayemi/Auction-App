@@ -991,6 +991,31 @@ header {
     padding: 2rem;
 }
 
+.bid-item.highest-bid {
+    background-color: var(--light-bg);
+    border-left: 4px solid var(--primary-color);
+    font-weight: bold;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+/* Optional: add a badge */
+.bid-item.highest-bid::after {
+    content: "🏆 Highest Bid";
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.bid-table-row.highest-bid {
+    background-color: var(--light-bg);
+    border-left: 4px solid var(--primary-color);
+    font-weight: bold;
+}
+
+
 /* Modal - Using your existing color scheme */
 .modal {
     display: none;
@@ -1087,6 +1112,37 @@ header {
 .flash-message{
   transition: opacity 0.5s ease;
 }
+
+/* Not Authorized Section */
+.not-authorized {
+  background-color: var(--text-light);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  text-align: center;
+}
+
+.not-authorized p {
+  font-size: 1.1rem;
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
+}
+
+.not-authorized a {
+  color: var(--secondary-dark);
+  font-weight: bold;
+  text-decoration: none;
+  margin: 0 0.5rem;
+  transition: var(--transition);
+}
+
+.not-authorized a:hover {
+  color: var(--primary-dark);
+}
+
 
 
 /* ====================== */

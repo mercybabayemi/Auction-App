@@ -67,12 +67,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get elements from the DOM
     const bidForm = document.getElementById('bid-form');
     const bidAmountInput = document.getElementById('bid-amount');
-    const currentPriceElement = document.getElementById('current-price');
-    const bidHistoryList = document.getElementById('bid-history-list');
+    const currentPriceElement = document.getElementById('current-bid');
+    const bidHistoryList = document.querySelector('.bid-history-list');
     const countdownElement = document.getElementById('countdown-timer');
+
+
+    const auctionIdInput = document.getElementById('auction-id');
+    const auctionId = auctionIdInput ? auctionIdInput.value : null;
 
     // Only run bidding logic if on auction detail page
     if (bidForm) {
+        console.log("[INIT] Bid form found, attaching event listeners...");
+
         // Handle bid form submission
         bidForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -80,8 +86,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const bidAmount = parseFloat(bidAmountInput.value);
             if (isNaN(bidAmount)) {
                 alert('Please enter a valid bid amount');
+                console.warn("[WARN] Invalid bid amount entered");
                 return;
             }
+
+            if (!auctionId) {
+                console.error("[ERROR] No auctionId found, cannot place bid");
+                return;
+             }
+
+            console.log("[EMIT] Placing bid:", { auction_id: auctionId, bid_amount: bidAmount });
 
             // Emit the bid to the server
             socket.emit('place_bid', {
@@ -92,7 +106,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Handle new bid event from server
         socket.on('new_bid', function(data) {
+            console.log("[SOCKET:new_bid] Received:", data);
+
             if (data.auction_id === auctionId) {
+                console.log("[UPDATE] Updating UI with new bid...");
+
                 // Update current price display
                 currentPriceElement.textContent = data.bid_amount.toFixed(2);
 
@@ -106,27 +124,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
 
                 // Highlight if it's the current user's bid
-                if (data.bidder_id === currentUserId) {
+                if (currentUserId && data.bidder_id === currentUserId) {
+                    // Remove highlight from all previous bids
+                    document.querySelectorAll('.highest-bid').forEach(el => {
+                        el.classList.remove('highest-bid');
+                    });
+
+
+                    // Add highlight to the new highest bid
                     bidItem.classList.add('highest-bid');
+                    console.log("[INFO] Current user placed this bid.");
                 }
 
-                bidHistoryList.prepend(bidItem);
+                // ✅ Changed from prepend() to insert at top of list safely
+                if (bidHistoryList) {
+                    bidHistoryList.insertBefore(bidItem, bidHistoryList.firstChild);
+                }  //bidHistoryList.prepend(bidItem);
 
                 // Update minimum bid amount
                 bidAmountInput.min = (data.bid_amount + 0.01).toFixed(2);
+
+                // Reset bid input field after successful bid
+                bidAmountInput.value = "";
+                console.log("[INFO] Bid input reset.");
             }
         });
 
         // Handle price updates
         socket.on('update_price', function(data) {
+            console.log("[SOCKET:update_price] Received:", data);
+
             if (data.auction_id === auctionId) {
                 currentPriceElement.textContent = data.current_price.toFixed(2);
                 bidAmountInput.min = (data.current_price + 0.01).toFixed(2);
+                console.log("[UPDATE] Price updated in UI");
             }
         });
 
         // Handle bid errors
         socket.on('bid_error', function(data) {
+            console.error("[SOCKET:bid_error] Received:", data);
             alert(data.message);
         });
     }
@@ -134,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Countdown timer for auction end
     if (countdownElement) {
         const endTime = new Date(countdownElement.dataset.endtime).getTime();
-
+        console.log("[INFO] Countdown timer initialized. Auction end time:", endTime);
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = endTime - now;
@@ -142,6 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (distance < 0) {
                 countdownElement.textContent = "Auction ended";
                 if (bidForm) bidForm.style.display = 'none';
+                console.log("[INFO] Auction has ended.");
                 return;
             }
 

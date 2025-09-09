@@ -6,10 +6,16 @@ Router / Controller layer for auctions.
  - Uses JWT for protected actions
 """
 import logging
+from datetime import datetime
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from bson import ObjectId
 
+from src.repositories.auction_repository import AuctionRepository
+from src.repositories.user_repository import UserRepository
 from src.services.auction_service import AuctionService
+from src.services.bid_service import BidService
 
 logger = logging.getLogger(__name__)
 
@@ -99,23 +105,32 @@ def list_auctions():
         category = request.args.get('category')
         auctions = AuctionService.search_auctions(search_query=search_query, category=category)
         # Render HTML page (legacy)
-        return render_template('auction/list.html', auctions=auctions, categories=['Electronics','Fashion','Home','Collectibles','Other'], selected_category=category, search_query=search_query)
+        return render_template("auction.html",auctions=auctions, categories=['Electronics','Fashion','Home','Collectibles','Other'], selected_category=category, search_query=search_query)
     except Exception as e:
-        logger.exception("Error listing auctions")
-        flash('Failed to load auctions', 'error')
+        logger.exception(f"Error listing auctions as {e}")
+        flash('Failed to load list auctions', 'error')
         return redirect(url_for('user_router.index'))
 
 
 @auction_router.route('/<auction_id>')
 def auction_detail(auction_id):
     try:
+        print("Accessing auction detail")
         auction = AuctionService.get_auction_by_id(auction_id)
         if not auction:
             flash('Auction not found', 'error')
             return redirect(url_for('auction_router.list_auctions'))
-        # Get bids via BidService or from auction.bids as needed (existing code)
+        # Get bids via BidService
         # Render detail template
-        return render_template('auction/detail.html', auction=auction, bids=[], current_time=None)
+        #But first is to resolve logged-in user JWT
+        identity = get_jwt_identity()
+        user = None
+        if identity and ObjectId.is_valid(identity):
+            user = UserRepository.get_user_by_id(ObjectId(identity))
+
+        #fetch auction bids
+        bids = BidService.get_bids_for_auction(ObjectId(auction_id))
+        return render_template('auction/detail.html', auction=auction, bids=bids, current_time=datetime.utcnow(), current_user=user)
     except Exception as e:
         logger.exception(f"Error retrieving auction {auction_id}")
         flash('Error loading auction', 'error')

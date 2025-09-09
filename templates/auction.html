@@ -8,17 +8,25 @@
         {% include 'partials/auction_header.html' %}
     {% endwith %}
 
-    {% include 'partials/auction_filter.html' %}
-
-    <div class="auction-list">
-        {% if auctions %}
-            {%  include 'partials/auction_card.html' %}
-        {% else %}
-            <div class="no-auctions">
-                <p>No auctions found. {% if is_authenticated() %} <a href="{{ url_for('auction_router.create_auction') }}">create one</a>{% endif %}</p>
-            </div>
-        {% endif %}
-    </div>
+    {% if not (is_authenticated() or (current_user and current_user.is_active)) %}
+        <div class="not-authorized">
+            <p>You must <a href="{{ url_for('auth_router.login') }}">Login</a> or
+            <a href="{{ url_for('auth_router.register') }}">Register</a> to view live auctions.</p>
+        </div>
+    {% else %}
+        {% include 'partials/auction_filter.html' %}
+        <div class="auction-list">
+            {% if auctions %}
+                {%  for auction in auctions %}
+                    {%  include 'partials/auction_card.html' %}
+                {%  endfor %}
+            {% else %}
+                <div class="no-auctions">
+                    <p>No auctions found. {% if is_authenticated() %} <a href="{{ url_for('auction_router.create_auction') }}">create one</a>{% endif %}</p>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
 

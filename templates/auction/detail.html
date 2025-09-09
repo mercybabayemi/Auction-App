@@ -3,13 +3,14 @@
 {% block title %}{{ auction.item_title }} - Auction Detail{% endblock %}
 
 {% block content %}
+
 <div class="auction-detail-container">
 
     <div class="auction-header">
         <h1>{{ auction.item_title }}</h1>
         <div class="auction-meta">
             <span class="status-badge {{ auction.status.lower() }}">{{ auction.status }}</span>
-            <span class="auction-id">#{{ auction.id|truncate(8, True, '') }}</span>
+            <span class="auction-id">#{{ auction.id|string|truncate(8, True, '') }}</span>
         </div>
     </div>
 
@@ -70,9 +71,13 @@
             <!-- Bidding Section -->
             <div class="bidding-section">
                 <div class="price-display">
+                    <div class="Starting-bid">
+                        <span class="label">Initial Bid Price:</span>
+                        <span class="price" id="starting-bid">${{ "%.2f"|format(auction.starting_bid) }}</span>
+                    </div>
                     <div class="current-price">
-                        <span class="label">Current Price:</span>
-                        <span class="price" id="current-bid">${{ "%.2f"|format(auction.current_bid or auction.starting_bid) }}</span>
+                        <span class="label">Current Bid Price:</span>
+                        <span class="price" id="current-bid">${{ "%.2f"|format(auction.current_bid or 0) }}</span>
                     </div>
                     <div class="time-remaining">
                         <span class="label">Time Left:</span>
@@ -84,18 +89,21 @@
 
                 {% if auction.status == 'Active' %}
                     {% if current_user and current_user.is_active and current_user.id != auction.seller.id %}
-                    <form id="bid-form">
-                        <div class="form-group">
-                            <label for="bid-amount">Your Bid ($)</label>
-                            <input type="number" id="bid-amount" name="bid_amount"
-                                   min="{{ (auction.current_bid or auction.starting_bid) + 0.01 }}" step="0.01" required>
-                        </div>
-                        <button type="submit" class="btn btn-bid">Place Bid</button>
-                    </form>
+                        <form id="bid-form" method="POST" class="bid_form" novalidate
+                      action="{{ url_for('bid_router.place_bid', auction_id=auction.id) }}">
+                            <input type="hidden" id="auction-id" value="{{ auction.id }}">
+
+                            <div class="form-group">
+                                <label for="bid-amount">Your Bid ($)</label>
+                                <input type="number" id="bid-amount" name="bid_amount"
+                                       min="{{ (auction.current_bid or auction.starting_bid) + 0.01 }}" step="0.01" required>
+                            </div>
+                            <button type="submit" class="btn btn-bid">Place Bid</button>
+                        </form>
                     {% elif not current_user %}
-                    <p>You need to <a href="{{ url_for('auth_router.login') }}">log in</a> to place bids</p>
+                        <p>You need to <a href="{{ url_for('auth_router.login') }}">log in</a> to place bids</p>
                     {% elif current_user.id == auction.seller.id %}
-                    <p>You cannot bid on your own auction</p>
+                        <p>You cannot bid on your own auction</p>
                     {% endif %}
                 {% endif %}
             </div>
@@ -105,20 +113,38 @@
     <!-- Bid History Section -->
     <div class="bid-history-section">
         <h2>Bid History</h2>
-        {% if bids %}
+        {% if bids and bids|length > 0 %}
         <div class="bid-history-list">
             {% for bid in bids %}
             <div class="bid-item {% if loop.first %}highest-bid{% endif %}">
-                <span class="bidder">{% if bid.bidder.id == current_user.id %}You{% else %}{{ bid.bidder.username }}{% endif %}</span>
+                <span class="bidder">{% if current_user and bid.bidder_id.id == current_user.id %}You{% else %}{{ bid.bidder_id.username }}{% endif %}</span>
                 <span class="amount">${{ "%.2f"|format(bid.bid_amount) }}</span>
                 <span class="time">{{ bid.created_at|datetimeformat('%b %d, %H:%M') }}</span>
             </div>
             {% endfor %}
         </div>
+        {% elif current_user and current_user.is_active and current_user.id == auction.seller.id %}
+            <p>No bids yet.</p>
         {% else %}
-        <p>No bids yet. Be the first to bid!</p>
+            <p>No bids yet. Be the first to bid!</p>
         {% endif %}
     </div>
 
 </div>
+
+        <!-- Expose current user ID to JS -->
+    {% if current_user %}
+    <script>
+        // Added: make current user ID available to script.js
+        const currentUserId = "{{ current_user.id }}";
+    </script>
+    {% else %}
+    <script>
+        // Added: if no user logged in, set null
+        const currentUserId = null;
+    </script>
+    {% endif %}
+
 {% endblock %}
+
+

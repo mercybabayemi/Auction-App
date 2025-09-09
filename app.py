@@ -12,7 +12,8 @@ from src.routers.user_router import user_router
 from src.routers.auth_router import auth_router
 from src.routers.auction_router import auction_router
 from src.routers.socket_events import register_socketio_events
-
+from src.services.auction_service import AuctionService
+from src.routers.bid_router import bid_router
 
 logging.basicConfig(
     level=logging.INFO,  # change to DEBUG for deeper logs
@@ -125,17 +126,20 @@ def create_app(test_config=None):
         transformation = f"/upload/w_{width},h_{height},c_{crop},q_{quality},f_{fmt}/"
         return url.replace("/upload/", transformation)
 
+
     # Register blueprints
     with my_app.app_context():
         my_app.register_blueprint(user_router, url_prefix='/user')
         my_app.register_blueprint(auth_router, url_prefix='/auth')
         my_app.register_blueprint(auction_router, url_prefix='/auction')
+        my_app.register_blueprint(bid_router, url_prefix='/bid')
 
 
     # Basic routes
     @my_app.route('/')
     def index():
-        return render_template('index.html')
+        featured_auctions = AuctionService.get_featured_auctions(limit=20)
+        return render_template('index.html', featured_auctions=featured_auctions)
 
     # Error handlers
     @my_app.errorhandler(404)
