@@ -18,8 +18,10 @@ class BidService:
         logger.info(f"Attempting to place bid: auction={auction_id}, bidder={bidder_id}, amount={bid_amount}")
 
         highest_bid = BidRepository.get_highest_bid(auction_id)
-        highest_bid_amount = highest_bid.bid_amount
-        logger.debug(f"Highest bid returned from repo: {highest_bid}")
+        highest_bid_amount = 0
+        if highest_bid:
+            highest_bid_amount = highest_bid.bid_amount
+            logger.debug(f"Highest bid returned from repo: {highest_bid_amount}")
 
         if highest_bid is None:
             auction = AuctionRepository.get_auction_by_id(auction_id)

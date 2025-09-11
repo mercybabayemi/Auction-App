@@ -1,12 +1,14 @@
 import logging
 from dotenv import load_dotenv
+from mongoengine import disconnect
+
 load_dotenv()  # this loads your .env file
 from flask_socketio import SocketIO
 from flask import Flask, render_template, request
 from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request
 from flask_mongoengine import MongoEngine
 from bson import ObjectId
-from config import Config
+from config import config_by_name
 from src.exceptions.user_does_not_exists import UserDoesNotExist
 from src.routers.user_router import user_router
 from src.routers.auth_router import auth_router
@@ -21,9 +23,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def create_app(test_config=None):
+def create_app(config_name="default"):
     my_app = Flask(__name__, instance_relative_config=True)
-    my_app.config.from_object(Config)
+
+    my_app.config.from_object(config_by_name[config_name])
+
+    # Disconnect existing alias if re-running in tests
+    if config_name == "testing":
+        disconnect(alias="testdb")
 
     # Initialize extensions
     MongoEngine(my_app)
@@ -109,7 +116,9 @@ def create_app(test_config=None):
         )
 
     logger.info(
-        f"Cloudinary config - name: {Config.CLOUDINARY_CLOUD_NAME}, preset: {Config.CLOUDINARY_UNSIGNED_PRESET}")
+        f"Cloudinary config - name: {my_app.config.get('CLOUDINARY_CLOUD_NAME')}, "
+        f"preset: {my_app.config.get('CLOUDINARY_UNSIGNED_PRESET')}"
+    )
 
     @my_app.template_filter('is_active_user')
     def is_active_user(user):
@@ -162,7 +171,7 @@ def create_app(test_config=None):
 
 
 if __name__ == '__main__':
-    app, socketio = create_app()
+    app, socketio = create_app("default")
     logger.info("Starting AuctionApp...")
     socketio.run(app,
                  debug=True,

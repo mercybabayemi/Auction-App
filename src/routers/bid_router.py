@@ -1,5 +1,5 @@
 import logging
-from flask import Blueprint, request, redirect, url_for, flash
+from flask import Blueprint, request, redirect, url_for, flash, jsonify
 from flask_jwt_extended import get_jwt_identity
 from bson import ObjectId
 
@@ -21,23 +21,38 @@ def place_bid(auction_id):
         logger.info(f"Received bid request for auction_id={auction_id}, identity={identity}")
 
         if not identity:
-            flash("You must be logged in to place a bid", "error")
+            msg = "You must be logged in to place a bid"
             logger.warning("Bid attempt without login.")
+            if request.is_json:
+                return jsonify({"error": msg}), 401
+            flash(msg, "error")
             return redirect(url_for("auth_router.login"))
 
         user = UserRepository.get_user_by_id(ObjectId(identity))
         if not user:
-            flash("User not found", "error")
+            msg = "User not found"
             logger.error(f"No user found with id={identity}")
+            if request.is_json:
+                return jsonify({"error": msg}), 404
+            flash(msg, "error")
             return redirect(url_for("auction_router.list_auctions"))
 
         auction = AuctionRepository.get_auction_by_id(ObjectId(auction_id))
         if not auction:
-            flash("Auction not found", "error")
+            msg = "Auction not found"
             logger.error(f"No auction found with id={auction_id}")
+            if request.is_json:
+                return jsonify({"error": msg}), 404
+            flash(msg, "error")
             return redirect(url_for("auction_router.list_auctions"))
 
-        bid_amount = float(request.form.get("bid_amount"))
+
+        # Handle both form and JSON bid submissions
+        if request.is_json:
+            bid_amount = float(request.json.get("bid_amount"))
+        else:
+            bid_amount = float(request.form.get("bid_amount"))
+
         logger.info(f"User {user.username} ({user.id}) placing bid: {bid_amount} on auction {auction.id}")
 
         BidService.place_bid(auction.id, user.id, bid_amount)
@@ -49,14 +64,29 @@ def place_bid(auction_id):
         else:
             logger.error(f"Failed to update current bid for auction={auction.id}")
 
-        flash("Bid placed successfully!", "success")
+        msg = "Bid placed successfully!"
+        if request.is_json:
+            return jsonify({
+                "message": msg,
+                "auction_id": str(auction.id),
+                "new_current_bid": updated_auction.current_bid if updated_auction else bid_amount
+            }), 200
+
+        flash(msg, "success")
+
         return redirect(url_for("auction_router.auction_detail", auction_id=auction.id))
 
     except BidTooLow:
-        logger.warning(f"Bid too low: auction={auction_id}, bidder={identity}, amount={request.form.get('bid_amount')}")
-        flash("Your bid must be higher than the current bid", "error")
+        msg = "Your bid must be higher than the current bid"
+        logger.warning(f"Bid too low: auction={auction_id}, bidder={identity}")
+        if request.is_json:
+            return jsonify({"error": msg}), 400
+        flash(msg, "error")
         return redirect(url_for("auction_router.auction_detail", auction_id=auction_id))
     except Exception as e:
-        logger.exception(f"Unexpected error while placing bid: auction={auction_id}, bidder={identity}")
-        flash(f"Error placing bid: {str(e)}", "error")
+        msg = "Exception Error"
+        logger.warning(f"Caught an exception: auction={auction_id}, bidder={identity} with {e}")
+        if request.is_json:
+            return jsonify({"error": {e}}), 400
+        flash(msg, "error")
         return redirect(url_for("auction_router.auction_detail", auction_id=auction_id))

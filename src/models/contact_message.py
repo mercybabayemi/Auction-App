@@ -9,6 +9,7 @@ class ContactMessage(Document):
     created_at = DateTimeField(default=datetime.utcnow)
 
     meta = {
+        "db_alias": "testdb",
         'collection': 'contact_messages'
     }
 

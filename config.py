@@ -39,3 +39,19 @@ class Config:
         'port': 27017,
         'connect': False
     }
+
+class TestingConfig:
+    TESTING = True
+    SECRET_KEY = "test-secret"
+    JWT_SECRET_KEY = "test-jwt-secret"  # required
+    MONGODB_SETTINGS = {
+        "db": "mongoenginetest",
+        "alias": "testdb",
+        "host": "mongodb://localhost"
+    }
+
+# config.py
+config_by_name = {
+    "default": Config,
+    "testing": TestingConfig,
+}

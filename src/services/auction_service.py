@@ -5,7 +5,7 @@ AuctionService (Business / Domain layer)
  - Keeps controller (router) thin
 """
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from bson import ObjectId
 from flask import current_app
 
@@ -18,16 +18,27 @@ class AuctionService:
     @staticmethod
     def _parse_end_time(end_time_input):
         """
-        Accept either a datetime or an ISO string and return a datetime.
-        Raises ValueError if parsing fails.
+        Accept either a datetime or an ISO string and return a UTC-aware datetime.
         """
         if end_time_input is None:
             raise ValueError("end_time is required")
+
+        # If already datetime
         if isinstance(end_time_input, datetime):
-            return end_time_input
-        # try parsing ISO-formatted string
+            if end_time_input.tzinfo is None:  # naive
+                return end_time_input.replace(tzinfo=timezone.utc)
+            return end_time_input.astimezone(timezone.utc)
+
+        #If type string: handle ISO (with or without Z)
         try:
-            return datetime.fromisoformat(end_time_input)
+            # Normalize "Z" → "+00:00"
+            if isinstance(end_time_input, str) and end_time_input.endswith("Z"):
+                end_time_input = end_time_input[:-1] + "+00:00"
+
+            dt = datetime.fromisoformat(end_time_input)
+            if dt.tzinfo is None:  # naive
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.astimezone(timezone.utc)
         except Exception as e:
             logger.debug(f"Failed to parse end_time '{end_time_input}': {e}")
             raise ValueError("end_time must be a valid ISO datetime string")
@@ -63,7 +74,7 @@ class AuctionService:
 
         # Parse and validate end_time
         end_time = AuctionService._parse_end_time(payload.get('end_time'))
-        if end_time <= datetime.utcnow():
+        if end_time <= datetime.now(timezone.utc):
             logger.warning(f"end_time is not in the future: {end_time.isoformat()}")
             raise ValueError("end_time must be in the future")
 

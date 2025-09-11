@@ -17,40 +17,66 @@ auth_router = Blueprint('auth_router', __name__, url_prefix='/auth')
 def register():
     if request.method == 'POST':
         try:
-            username = request.form.get('username')
-            email = request.form.get('email')
-            password = request.form.get('password')
-            first_name = request.form.get('first_name')
-            last_name = request.form.get('last_name')
+            if request.is_json:
+                data = request.get_json()
+                username = data.get("username")
+                email = data.get("email")
+                password = data.get("password")
+                first_name = data.get("first_name")
+                last_name = data.get("last_name")
+            else:
+                username = request.form.get('username')
+                email = request.form.get('email')
+                password = request.form.get('password')
+                first_name = request.form.get('first_name')
+                last_name = request.form.get('last_name')
 
             user = UserService.register_user(username, email, password, first_name, last_name)
             print(str(user.to_dict()))
             print("User id is " + str(user.id))
 
             access_token = create_access_token(identity=str(user.id))
+            if request.is_json:
+                return jsonify({"msg": "Registration successful", "access_token": access_token}), 201
             response = make_response(redirect(url_for('auth_router.login')))
             set_access_cookies(response, access_token)
             flash('Registration successful! Please log in to continue.', 'success')
             return response
         except InvalidCredentials as e:
+            if request.is_json:
+                return jsonify({"msg": str(e)}), 400
             flash(str(e), 'error')
+
         except UserAlreadyExists as e:
+            if request.is_json:
+                return jsonify({"msg": str(e)}), 409  # Conflict
             flash(str(e), 'error')
+
         except Exception as e:
+            if request.is_json:
+                return jsonify({"msg": "An error occurred during registration", "error": str(e)}), 500
             flash('An error occurred during registration' + str(e), 'error')
 
-    return render_template('auth/register.html')
+        return render_template('auth/register.html')
 
 @auth_router.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         try:
-            username = request.form.get('username')
-            password = request.form.get('password')
-            print(f"Attempting login for username: {username}")
-            user = UserService.login_user(username, password)
-            print(f"User found: {user.username}, ID: {user.id}")
-            logging.info(f"User created successfully: {user}")
+            if request.is_json:
+                data = request.get_json()
+                username = data.get("username")
+                password = data.get("password")
+                user = UserService.login_user(username, password)
+                access_token = create_access_token(identity=str(user.id))
+                return jsonify({"msg": "Login successful", "access_token": access_token}), 200
+            else:
+                username = request.form.get('username')
+                password = request.form.get('password')
+                print(f"Attempting login for username: {username}")
+                user = UserService.login_user(username, password)
+                print(f"User found: {user.username}, ID: {user.id}")
+                logging.info(f"User created successfully: {user}")
 
             if not user.is_active:
                 # Create a limited-time reactivation token

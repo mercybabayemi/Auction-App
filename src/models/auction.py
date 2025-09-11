@@ -34,7 +34,7 @@ class Auction(Document):
             'image_urls': self.image_urls
         }
 
-    meta = {'collection': 'auction'}
+    meta = {"db_alias": "testdb", 'collection': 'auction'}
 
 
 

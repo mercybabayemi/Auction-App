@@ -7,4 +7,4 @@ class Bid(Document):
     bid_amount = FloatField(required=True)
     created_at = DateTimeField(default=datetime.utcnow)  # add timestamp
 
-    meta = {'collection': 'bid'}
+    meta = {"db_alias": "testdb", 'collection': 'bid'}
