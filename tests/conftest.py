@@ -10,6 +10,7 @@ TEST_DB_NAME = "mongoenginetest"
 def app():
     """Create and configure a new app instance for testing."""
     app, socketio = create_app("testing")  # unpack both
+    app.config['TESTING'] = True
     return app
 
 @pytest.fixture(scope="session", autouse=True)

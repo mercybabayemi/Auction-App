@@ -104,9 +104,12 @@ def list_auctions():
         search_query = request.args.get('search', '').strip()
         category = request.args.get('category')
         auctions = AuctionService.search_auctions(search_query=search_query, category=category)
+
         # If API call (tests) → return JSON
-        if request.accept_mimetypes['application/json']:
+        # Only return JSON if the client explicitly prefers JSON to HTML
+        if request.accept_mimetypes['application/json'] >= request.accept_mimetypes['text/html']:
             return jsonify([auction.to_dict() for auction in auctions]), 200
+
         # Render HTML page (legacy)
         return render_template("auction.html",auctions=auctions, categories=['Electronics','Fashion','Home','Collectibles','Other'], selected_category=category, search_query=search_query)
     except Exception as e:

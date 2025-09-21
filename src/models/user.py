@@ -23,4 +23,4 @@ class User(Document):
             'updated_at': self.updated_at.isoformat()
         }
 
-    meta = {"db_alias": "testdb", "collection": "users"}
+    meta = {"collection": "users"}

@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    container_name: auction_app
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app   # Dev mode: live reload code changes
+    depends_on:
+      - mongo
+      - redis
+    env_file:
+      - .env
+
+  mongo:
+    image: mongo:7
+    container_name: auction_mongo
+    restart: always
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=auction_db
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7
+    container_name: auction_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mongo_data:
+  redis_data:

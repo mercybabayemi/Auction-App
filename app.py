@@ -1,7 +1,7 @@
 import logging
 from dotenv import load_dotenv
 from mongoengine import disconnect
-
+from flasgger import Swagger
 load_dotenv()  # this loads your .env file
 from flask_socketio import SocketIO
 from flask import Flask, render_template, request
@@ -165,6 +165,8 @@ def create_app(config_name="default"):
     def internal_server_error(e):
         logger.error(f"500 error encountered: {e}")
         return render_template('500.html'), 500
+
+    Swagger(app=my_app)
 
 
     return my_app, socketio_myapp

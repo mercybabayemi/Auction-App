@@ -3,7 +3,7 @@ import os
 
 class Config:
     # App Configuration
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-very-secret-key-here'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
 
     # Cloudinary configuration
     CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
@@ -17,7 +17,7 @@ class Config:
     CLOUDINARY_UNSIGNED_PRESET = 'auction_unsigned_preset'
 
     # JWT Configuration
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'your-jwt-secret-key-here'
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
     JWT_TOKEN_LOCATION = ['cookies']
     JWT_ACCESS_TOKEN_EXPIRES = 86400  # 24 hours
     JWT_COOKIE_SECURE = False  # True in production
@@ -34,8 +34,9 @@ class Config:
 
     # MongoDB Configuration
     MONGODB_SETTINGS = {
-        'db': 'auction_db',
-        'host': 'localhost',
+        'db': os.getenv('MONGODB_DATABASE'),
+        'host': os.getenv('MONGODB_HOST'),
+        'alias': 'default',
         'port': 27017,
         'connect': False
     }
