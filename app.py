@@ -4,7 +4,7 @@ from mongoengine import disconnect
 from flasgger import Swagger
 load_dotenv()  # this loads your .env file
 from flask_socketio import SocketIO
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, current_app
 from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request
 from flask_mongoengine import MongoEngine
 from bson import ObjectId
@@ -16,6 +16,8 @@ from src.routers.auction_router import auction_router
 from src.routers.socket_events import register_socketio_events
 from src.services.auction_service import AuctionService
 from src.routers.bid_router import bid_router
+import redis
+from urllib.parse import urlparse
 
 logging.basicConfig(
     level=logging.INFO,  # change to DEBUG for deeper logs
@@ -27,6 +29,20 @@ def create_app(config_name="default"):
     my_app = Flask(__name__, instance_relative_config=True)
 
     my_app.config.from_object(config_by_name[config_name])
+
+    # Redis setup
+    redis_url = my_app.config["REDIS_URL"]
+    redis_client = redis.from_url(redis_url)
+
+    # Test connection once (optional but useful for Render logs)
+    try:
+        redis_client.ping()
+        logger.info(f"Connected to Redis at {redis_url}")
+    except Exception as e:
+        logger.error(f"Redis connection failed: {e}")
+
+
+    my_app.extensions["redis"] = redis_client
 
     # Disconnect existing alias if re-running in tests
     if config_name == "testing":
@@ -135,6 +151,9 @@ def create_app(config_name="default"):
         transformation = f"/upload/w_{width},h_{height},c_{crop},q_{quality},f_{fmt}/"
         return url.replace("/upload/", transformation)
 
+    redis_client = current_app.extensions["redis"]
+    redis_client.set("foo", "bar")
+    print(redis_client.get("foo"))
 
     # Register blueprints
     with my_app.app_context():
@@ -167,7 +186,6 @@ def create_app(config_name="default"):
         return render_template('500.html'), 500
 
     Swagger(app=my_app)
-
 
     return my_app, socketio_myapp
 

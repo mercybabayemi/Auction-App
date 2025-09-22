@@ -25,5 +25,9 @@ COPY . .
 # Expose port (Flask defaults to 5000, FastAPI defaults to 8000)
 EXPOSE 5000
 
-# Start the app (gunicorn recommended in prod)
-CMD ["gunicorn", "-k", "eventlet", "-b", "0.0.0.0:5000", "app:app"]
+# Add entrypoint script (to capture logs)
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Use entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
