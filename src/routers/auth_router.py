@@ -57,7 +57,7 @@ def register():
                 return jsonify({"msg": "An error occurred during registration", "error": str(e)}), 500
             flash('An error occurred during registration' + str(e), 'error')
 
-        return render_template('auth/register.html')
+    return render_template('auth/register.html')
 
 @auth_router.route('/login', methods=['GET', 'POST'])
 def login():
