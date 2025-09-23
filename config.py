@@ -34,6 +34,7 @@ class Config:
     # Redis Configuration
     REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
+
     # MongoDB Configuration
     # Use Atlas URI if provided, otherwise fallback to local
     MONGODB_SETTINGS = {
