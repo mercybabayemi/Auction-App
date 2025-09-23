@@ -7,7 +7,7 @@ echo "🚀 Starting Auction App..."
 # python app.py
 
 # Otherwise run gunicorn (production mode)
-exec gunicorn -k eventlet -w 1 -b 0.0.0.0:5000 wsgi:socketio \
+exec gunicorn -k eventlet -w 1 -b 0.0.0.0:5000 wsgi:application \
     --log-level=debug \
     --capture-output \
     --enable-stdio-inheritance
