@@ -2,20 +2,23 @@ annotated-types==0.7.0
 attrs==25.3.0
 bidict==0.23.1
 blinker==1.9.0
+cachelib==0.13.0
 certifi==2025.6.15
 click==8.2.1
 cloudinary==1.44.1
 dnspython==2.7.0
 email_validator==2.2.0
-eventlet==0.40.0
+eventlet==0.40.3
 flasgger==0.9.7.1
 Flask==3.1.1
 Flask-JWT-Extended==4.7.1
 flask-mongoengine @ git+https://github.com/MongoEngine/flask-mongoengine.git@d4526139cb1e2e94111ab7de96bb629d574c1690
 Flask-PyMongo==2.3.0
+Flask-Session==0.8.0
 Flask-SocketIO==5.5.1
 Flask-WTF==1.2.2
 greenlet==3.2.3
+gunicorn==23.0.0
 h11==0.16.0
 idna==3.10
 iniconfig==2.1.0
@@ -28,6 +31,7 @@ marshmallow==3.19.0
 mistune==3.1.4
 mongoengine==0.29.1
 mongomock==4.3.0
+msgspec==0.19.0
 packaging==25.0
 pluggy==1.6.0
 pydantic==2.4.0
@@ -41,6 +45,7 @@ python-engineio==4.12.2
 python-socketio==5.13.0
 pytz==2025.2
 PyYAML==6.0.2
+redis==6.4.0
 referencing==0.36.2
 rpds-py==0.27.1
 sentinels==1.1.1
@@ -52,4 +57,3 @@ urllib3==2.5.0
 Werkzeug==3.1.3
 wsproto==1.2.0
 WTForms==3.2.1
-redis~=6.4.0
